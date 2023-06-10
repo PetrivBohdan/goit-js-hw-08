@@ -1,41 +1,41 @@
 // Add imports above this line
 import { galleryItems } from './gallery-items';
-// Change code below this line
-// Описаний в документації
 import SimpleLightbox from "simplelightbox";
-// Додатковий імпорт стилів
 import "simplelightbox/dist/simple-lightbox.min.css";
+// Change code below this line
+const gallery = document.querySelector('.gallery');
 
+const createGalleryItem = ({ preview, original, description }) => {
+  const galleryItem = document.createElement('li');
+  galleryItem.classList.add('gallery__item');
 
+  const link = document.createElement('a');
+  link.classList.add('gallery__link');
+  link.href = original;
 
-const galleryContainer = document.querySelector('.gallery');
+  const image = document.createElement('img');
+  image.classList.add('gallery__image');
+  image.src = preview;
+  image.dataset.source = original;
+  image.alt = description;
 
-function createGalleryItem({ preview, original, description }) {
-  return `
-    <li class="gallery__item">
-      <a class="gallery__link" href="${original}">
-        <img
-          class="gallery__image"
-          src="${preview}"
-          alt="${description}"
-          data-source="${original}"
-        />
-      </a>
-    </li>
-  `;
-}
+  link.appendChild(image);
+  galleryItem.appendChild(link);
 
-function renderGallery(items) {
-  const galleryMarkup = items.map(createGalleryItem).join('');
-  galleryContainer.innerHTML = galleryMarkup;
-}
+  return galleryItem;
+};
+
+const renderGallery = (items) => {
+  const galleryItems = items.map(item => createGalleryItem(item));
+  gallery.append(...galleryItems);
+};
 
 renderGallery(galleryItems);
 
-// Ініціалізація бібліотеки SimpleLightbox з додаванням підписів та затримкою
-const gallery = new SimpleLightbox('.gallery a', {
+const lightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
-  captionDelay: 250,
+  captionDelay: 250
 });
 
+console.log(galleryItems);
 

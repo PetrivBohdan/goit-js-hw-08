@@ -1,31 +1,18 @@
 import Player from '@vimeo/player';
 import throttle from 'lodash.throttle';
 
-const playerIframe = document.getElementById('vimeo-player');
-const storageKey = 'videoplayer-current-time';
+const iframe = document.querySelector('#vimeo-player');
 
-let vimeoPlayer;
-
-// Ініціалізація плеєра після завантаження сторінки
-window.addEventListener('DOMContentLoaded', () => {
-  vimeoPlayer = new Player(playerIframe);
-
-  // Отримання збереженого часу відтворення з локального сховища
-  const storedTime = localStorage.getItem(storageKey);
-  
-  // Перевірка наявності збереженого часу та встановлення його в плеєр
-  if (storedTime !== null) {
-    vimeoPlayer.setCurrentTime(parseFloat(storedTime)).catch(error => {
-      console.error('Failed to set currentTime:', error);
-    });
+const player = new Player(iframe);
+const saveCurrentTime = throttle(async function() {
+  const currentTime = await player.getCurrentTime();
+  localStorage.setItem('videoplayer-current-time', currentTime);
+}, 1000);
+async function restorePlayback() {
+  const currentTime = localStorage.getItem('videoplayer-current-time');
+  if (currentTime) {
+    await player.setCurrentTime(currentTime);
   }
-
-  // Відстеження події оновлення часу відтворення
-  vimeoPlayer.on('timeupdate', throttle(() => {
-    vimeoPlayer.getCurrentTime().then(currentTime => {
-      localStorage.setItem(storageKey, currentTime.toFixed(2));
-    }).catch(error => {
-      console.error('Failed to get currentTime:', error);
-    });
-  }, 1000));
-});
+}
+player.on('timeupdate', saveCurrentTime);
+restorePlayback();
